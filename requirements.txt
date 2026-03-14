@@ -1,5 +1,6 @@
 google-play-scraper
-pandas
-python-dateutil
+app-store-scraper
 google-generativeai
 python-dotenv
+pandas
+streamlit
