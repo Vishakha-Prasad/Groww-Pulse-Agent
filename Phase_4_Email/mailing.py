@@ -10,13 +10,24 @@ def send_email(subject, body_text):
     """
     Phase 4: Sends an email using SMTP with dual-port fallback (SSL/TLS).
     """
-    smtp_host = os.getenv("SMTP_HOST")
-    smtp_user = os.getenv("SMTP_USER").strip() if os.getenv("SMTP_USER") else None
-    smtp_pass = os.getenv("SMTP_PASS").strip().replace(" ", "") if os.getenv("SMTP_PASS") else None
-    recipient = os.getenv("RECIPIENT_EMAIL").strip() if os.getenv("RECIPIENT_EMAIL") else None
+    try:
+        import streamlit as st
+        # Try to get from Streamlit Secrets first on Cloud
+        s = st.secrets
+    except:
+        s = {}
+
+    smtp_host = os.getenv("SMTP_HOST") or s.get("SMTP_HOST")
+    smtp_user_raw = os.getenv("SMTP_USER") or s.get("SMTP_USER")
+    smtp_pass_raw = os.getenv("SMTP_PASS") or s.get("SMTP_PASS")
+    recipient_raw = os.getenv("RECIPIENT_EMAIL") or s.get("RECIPIENT_EMAIL")
+
+    smtp_user = smtp_user_raw.strip() if smtp_user_raw else None
+    smtp_pass = smtp_pass_raw.strip().replace(" ", "") if smtp_pass_raw else None
+    recipient = recipient_raw.strip() if recipient_raw else None
 
     if not all([smtp_host, smtp_user, smtp_pass, recipient]):
-        print("WARNING: Phase 4 skipped. Incomplete SMTP configuration in .env.")
+        print(f"WARNING: Phase 4 skipped. Incomplete SMTP configuration. Host: {smtp_host}, User: {smtp_user}, Pass: {'****' if smtp_pass else None}, Recipient: {recipient}")
         return False
 
     msg = MIMEMultipart()
